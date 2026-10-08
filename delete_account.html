@@ -1,0 +1,33 @@
+{% extends 'daily_journal/base.html' %}
+{% block title %}Delete Account{% endblock %}
+{% block page_title %}Delete Account{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-5">
+        <div class="card border-danger">
+            <div class="card-body p-5 text-center">
+                <div style="width:80px;height:80px;background:#fee2e2;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;">
+                    <i class="fas fa-exclamation-triangle fa-2x text-danger"></i>
+                </div>
+                <h4 class="fw-bold text-danger mb-3">Delete Your Account?</h4>
+                <p class="text-muted mb-2">This will <strong>permanently delete</strong> your account and all your data including:</p>
+                <ul class="text-muted small text-start mb-4">
+                    <li>All journal entries</li>
+                    <li>Mood history</li>
+                    <li>Habits and tracking data</li>
+                    <li>Reminders and settings</li>
+                </ul>
+                <p class="text-danger fw-semibold small mb-4">This action cannot be undone!</p>
+                <form method="post" class="d-flex gap-2 justify-content-center">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger px-4 fw-semibold">
+                        <i class="fas fa-user-times me-2"></i>Delete My Account
+                    </button>
+                    <a href="{% url 'profile' %}" class="btn btn-outline-secondary px-4">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

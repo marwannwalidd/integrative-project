@@ -1,0 +1,66 @@
+{% extends 'daily_journal/base.html' %}
+{% block title %}{{ action }} Entry{% endblock %}
+{% block page_title %}{{ action }} Journal Entry{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-9">
+        <form method="post">
+            {% csrf_token %}
+            <div class="card mb-3">
+                <div class="card-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Title</label>
+                        {{ form.title }}
+                        {% if form.title.errors %}<div class="text-danger small mt-1">{{ form.title.errors.0 }}</div>{% endif %}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">How are you feeling today?</label>
+                        {{ mood_form.mood_type }}
+                    </div>
+                    <div>
+                        <label class="form-label fw-semibold">Write your thoughts...</label>
+                        {{ form.content }}
+                        {% if form.content.errors %}<div class="text-danger small mt-1">{{ form.content.errors.0 }}</div>{% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Word Count Bar -->
+            <div class="card mb-3">
+                <div class="card-body p-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted"><i class="fas fa-file-word me-1"></i>Word count: <span id="wordCount">0</span></small>
+                        <small class="text-muted">Characters: <span id="charCount">0</span></small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary px-4 fw-semibold">
+                    <i class="fas fa-save me-2"></i>{{ action }} Entry
+                </button>
+                <a href="{% url 'entry_list' %}" class="btn btn-outline-secondary px-4">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const content = document.querySelector('textarea[name="content"]');
+const wordCountEl = document.getElementById('wordCount');
+const charCountEl = document.getElementById('charCount');
+
+function updateCount() {
+    const text = content.value.trim();
+    const words = text ? text.split(/\s+/).length : 0;
+    wordCountEl.textContent = words;
+    charCountEl.textContent = content.value.length;
+}
+
+content.addEventListener('input', updateCount);
+updateCount();
+</script>
+{% endblock %}

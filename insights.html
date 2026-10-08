@@ -1,0 +1,153 @@
+{% extends 'daily_journal/base.html' %}
+{% block title %}Insights{% endblock %}
+{% block page_title %}My Insights{% endblock %}
+
+{% block content %}
+<!-- Stats Row -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="stat-card text-center">
+            <div class="stat-icon bg-gradient-purple text-white mx-auto"><i class="fas fa-book"></i></div>
+            <div class="stat-value">{{ total }}</div>
+            <div class="stat-label">Total Entries</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card text-center">
+            <div class="stat-icon bg-gradient-blue text-white mx-auto"><i class="fas fa-pen"></i></div>
+            <div class="stat-value">{{ total_words }}</div>
+            <div class="stat-label">Total Words</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card text-center">
+            <div class="stat-icon bg-gradient-green text-white mx-auto"><i class="fas fa-chart-line"></i></div>
+            <div class="stat-value">{{ avg_words }}</div>
+            <div class="stat-label">Avg Words/Entry</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card text-center">
+            <div class="stat-icon bg-gradient-orange text-white mx-auto"><i class="fas fa-fire"></i></div>
+            <div class="stat-value">{{ streak }}</div>
+            <div class="stat-label">Current Streak 🔥</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Monthly Entries Chart -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header"><i class="fas fa-calendar-alt me-2"></i>Entries per Month</div>
+            <div class="card-body p-4">
+                <canvas id="monthlyChart" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mood Distribution -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header"><i class="fas fa-smile me-2"></i>Mood Distribution</div>
+            <div class="card-body p-4">
+                <canvas id="moodChart" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Day of Week Chart -->
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header"><i class="fas fa-chart-bar me-2"></i>Most Active Days</div>
+            <div class="card-body p-4">
+                <canvas id="daysChart" height="80"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const monthlyData = {{ monthly_json|safe }};
+const moodData = {{ mood_json|safe }};
+const daysData = {{ days_json|safe }};
+
+// Monthly chart
+if (Object.keys(monthlyData).length) {
+    new Chart(document.getElementById('monthlyChart'), {
+        type: 'line',
+        data: {
+            labels: Object.keys(monthlyData),
+            datasets: [{
+                label: 'Entries',
+                data: Object.values(monthlyData),
+                borderColor: '#6C63FF',
+                backgroundColor: 'rgba(108,99,255,0.1)',
+                fill: true,
+                tension: 0.4,
+                pointBackgroundColor: '#6C63FF',
+                pointRadius: 5,
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+        }
+    });
+} else {
+    document.getElementById('monthlyChart').parentElement.innerHTML = '<p class="text-muted text-center py-4">No data yet</p>';
+}
+
+// Mood chart
+if (Object.keys(moodData).length) {
+    const moodColors = ['#fbbf24','#60a5fa','#f472b6','#34d399','#f59e0b','#ef4444','#a78bfa','#9ca3af','#d1d5db'];
+    new Chart(document.getElementById('moodChart'), {
+        type: 'doughnut',
+        data: {
+            labels: Object.keys(moodData).map(k => k.charAt(0).toUpperCase() + k.slice(1)),
+            datasets: [{
+                data: Object.values(moodData),
+                backgroundColor: moodColors.slice(0, Object.keys(moodData).length),
+                borderWidth: 0,
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { position: 'bottom' } }
+        }
+    });
+} else {
+    document.getElementById('moodChart').parentElement.innerHTML = '<p class="text-muted text-center py-4">No mood data yet</p>';
+}
+
+// Days chart
+const dayOrder = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+const dayLabels = dayOrder.filter(d => d in daysData);
+const dayValues = dayLabels.map(d => daysData[d]);
+
+if (dayLabels.length) {
+    new Chart(document.getElementById('daysChart'), {
+        type: 'bar',
+        data: {
+            labels: dayLabels,
+            datasets: [{
+                label: 'Entries',
+                data: dayValues,
+                backgroundColor: 'rgba(108,99,255,0.7)',
+                borderRadius: 8,
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+        }
+    });
+} else {
+    document.getElementById('daysChart').parentElement.innerHTML = '<p class="text-muted text-center py-4">No data yet</p>';
+}
+</script>
+{% endblock %}

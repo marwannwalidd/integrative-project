@@ -1,0 +1,98 @@
+{% extends 'daily_journal/base.html' %}
+{% block title %}Mood Tracker{% endblock %}
+{% block page_title %}Mood Tracker{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <!-- Log Mood -->
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header"><i class="fas fa-smile me-2" style="color:var(--secondary)"></i>Log Today's Mood</div>
+            <div class="card-body p-4">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">How are you feeling?</label>
+                        {{ form.mood_type }}
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-plus me-2"></i>Log Mood
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Weekly Stats -->
+        {% if mood_stats_dict %}
+        <div class="card mt-3">
+            <div class="card-header"><i class="fas fa-chart-pie me-2"></i>This Week</div>
+            <div class="card-body p-3">
+                {% for mood_type, count in mood_stats_dict.items %}
+                <div class="d-flex justify-content-between align-items-center py-1">
+                    <span class="mood-badge mood-{{ mood_type }}">{{ mood_type|capfirst }}</span>
+                    <strong>{{ count }}x</strong>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Mood History & Chart -->
+    <div class="col-md-8">
+        {% if mood_stats_dict %}
+        <div class="card mb-4">
+            <div class="card-header"><i class="fas fa-chart-bar me-2"></i>Weekly Mood Distribution</div>
+            <div class="card-body p-4">
+                <canvas id="moodChart" height="120"></canvas>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="card">
+            <div class="card-header"><i class="fas fa-history me-2"></i>Recent Moods</div>
+            <div class="card-body p-3">
+                {% if moods %}
+                    {% for mood in moods %}
+                    <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                        <span class="mood-badge mood-{{ mood.mood_type }}">{{ mood.get_mood_type_display }}</span>
+                        <small class="text-muted">{{ mood.recorded_at|date:"M j, Y g:i A" }}</small>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted text-center py-4">No mood logs yet. Log your first mood!</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+{% if mood_stats_dict %}
+const moodData = {{ mood_stats|safe }};
+const labels = Object.keys(moodData).map(k => k.charAt(0).toUpperCase() + k.slice(1));
+const values = Object.values(moodData);
+const colors = ['#fbbf24','#60a5fa','#f472b6','#34d399','#f59e0b','#ef4444','#a78bfa','#9ca3af','#d1d5db'];
+
+new Chart(document.getElementById('moodChart'), {
+    type: 'bar',
+    data: {
+        labels: labels,
+        datasets: [{
+            label: 'Times logged',
+            data: values,
+            backgroundColor: colors.slice(0, values.length),
+            borderRadius: 8,
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+    }
+});
+{% endif %}
+</script>
+{% endblock %}

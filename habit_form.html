@@ -1,0 +1,33 @@
+{% extends 'daily_journal/base.html' %}
+{% block title %}{{ action }} Habit{% endblock %}
+{% block page_title %}{{ action }} Habit{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header"><i class="fas fa-check-double me-2"></i>{{ action }} Habit</div>
+            <div class="card-body p-4">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Habit Name</label>
+                        {{ form.habit_name }}
+                        {% if form.habit_name.errors %}<div class="text-danger small">{{ form.habit_name.errors.0 }}</div>{% endif %}
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">Description <span class="text-muted fw-normal">(optional)</span></label>
+                        {{ form.description }}
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="fas fa-save me-2"></i>Save Habit
+                        </button>
+                        <a href="{% url 'habit_list' %}" class="btn btn-outline-secondary px-4">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

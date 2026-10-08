@@ -1,0 +1,41 @@
+{% extends 'daily_journal/base.html' %}
+{% block title %}Security Settings{% endblock %}
+{% block page_title %}Security Settings{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header"><i class="fas fa-shield-alt me-2 text-success"></i>Security Settings</div>
+            <div class="card-body p-4">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">PIN Code <span class="text-muted fw-normal">(4-6 digits)</span></label>
+                        {{ form.pin_code }}
+                        {% if form.pin_code.errors %}<div class="text-danger small mt-1">{{ form.pin_code.errors.0 }}</div>{% endif %}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Confirm PIN</label>
+                        {{ form.confirm_pin }}
+                    </div>
+                    <div class="mb-4 form-check">
+                        {{ form.biometric_enabled }}
+                        <label class="form-check-label fw-semibold" for="{{ form.biometric_enabled.id_for_label }}">Enable Biometric Login</label>
+                        <div class="text-muted small">Face ID / Touch ID support</div>
+                    </div>
+                    {% if form.non_field_errors %}
+                    <div class="alert alert-danger small py-2">{{ form.non_field_errors.0 }}</div>
+                    {% endif %}
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-success px-4 fw-semibold">
+                            <i class="fas fa-save me-2"></i>Save Settings
+                        </button>
+                        <a href="{% url 'profile' %}" class="btn btn-outline-secondary px-4">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

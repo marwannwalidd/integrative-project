@@ -1,0 +1,130 @@
+{% extends 'daily_journal/base.html' %}
+{% block title %}Dashboard - Daily Journal{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<!-- Welcome Banner -->
+<div class="rounded-4 p-4 mb-4 text-white" style="background: linear-gradient(135deg, #6C63FF 0%, #FF6584 100%);">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+            <h4 class="fw-bold mb-1">Good {{ greeting }}, {{ user.first_name|default:user.username }}! ✨</h4>
+            <p class="mb-0 opacity-80">{{ today|date:"l, F j, Y" }}</p>
+        </div>
+        <a href="{% url 'entry_create' %}" class="btn btn-light fw-semibold px-4">
+            <i class="fas fa-plus me-2"></i>New Entry
+        </a>
+    </div>
+</div>
+
+<!-- Stat Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="stat-card">
+            <div class="stat-icon bg-gradient-purple text-white"><i class="fas fa-book"></i></div>
+            <div class="stat-value">{{ total_entries }}</div>
+            <div class="stat-label">Total Entries</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card">
+            <div class="stat-icon bg-gradient-orange text-white"><i class="fas fa-fire"></i></div>
+            <div class="stat-value">{{ streak }}</div>
+            <div class="stat-label">Day Streak 🔥</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card">
+            <div class="stat-icon bg-gradient-green text-white"><i class="fas fa-pen"></i></div>
+            <div class="stat-value">{{ avg_words }}</div>
+            <div class="stat-label">Avg Words/Entry</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card">
+            <div class="stat-icon bg-gradient-pink text-white"><i class="fas fa-check-double"></i></div>
+            <div class="stat-value">{{ habits_done_today }}/{{ habits.count }}</div>
+            <div class="stat-label">Habits Today</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Recent Entries -->
+    <div class="col-lg-7">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-pen-nib me-2" style="color:var(--primary)"></i>Recent Entries</span>
+                <a href="{% url 'entry_list' %}" class="btn btn-sm btn-outline-primary">View All</a>
+            </div>
+            <div class="card-body p-3">
+                {% if recent_entries %}
+                    {% for entry in recent_entries %}
+                    <a href="{% url 'entry_detail' entry.pk %}" class="entry-card">
+                        <div class="d-flex justify-content-between align-items-start mb-1">
+                            <h6 class="mb-0 fw-semibold">{{ entry.title }}</h6>
+                            <small class="text-muted ms-2 text-nowrap">{{ entry.created_at|date:"M j" }}</small>
+                        </div>
+                        <p class="text-muted small mb-1">{{ entry.content|truncatechars:100 }}</p>
+                        <small class="text-muted"><i class="fas fa-file-word me-1"></i>{{ entry.word_count }} words</small>
+                    </a>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-5 text-muted">
+                        <i class="fas fa-book-open fa-3x mb-3 opacity-25"></i>
+                        <p>No entries yet. <a href="{% url 'entry_create' %}">Write your first one!</a></p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column -->
+    <div class="col-lg-5">
+        <!-- Today's Habits -->
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-check-double me-2" style="color:var(--accent)"></i>Today's Habits</span>
+                <a href="{% url 'habit_list' %}" class="btn btn-sm btn-outline-success">Manage</a>
+            </div>
+            <div class="card-body p-3">
+                {% if habits %}
+                    {% for habit in habits %}
+                    <div class="d-flex align-items-center justify-content-between py-2 border-bottom">
+                        <span class="small fw-medium">{{ habit.habit_name }}</span>
+                        <a href="{% url 'habit_toggle' habit.pk %}" class="btn btn-sm {% if habit in habits %}btn-outline-success{% else %}btn-outline-secondary{% endif %}">
+                            <i class="fas fa-check"></i>
+                        </a>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted small text-center py-3">No habits yet. <a href="{% url 'habit_create' %}">Add one!</a></p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Mood Today -->
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-smile me-2" style="color:var(--secondary)"></i>Mood This Week</span>
+                <a href="{% url 'mood_tracker' %}" class="btn btn-sm btn-outline-danger">Track</a>
+            </div>
+            <div class="card-body p-3 text-center">
+                {% if top_mood %}
+                    <span class="mood-badge mood-{{ top_mood }} fs-6 px-4 py-2">
+                        Most felt: {{ top_mood|capfirst }}
+                    </span>
+                {% else %}
+                    <p class="text-muted small py-3">Log your mood to see stats here.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Simple greeting based on time
+const hour = new Date().getHours();
+</script>
+{% endblock %}

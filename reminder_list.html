@@ -1,0 +1,54 @@
+{% extends 'daily_journal/base.html' %}
+{% block title %}Reminders{% endblock %}
+{% block page_title %}Reminders{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <p class="text-muted mb-0">Set daily reminders to keep your journaling habit.</p>
+    <a href="{% url 'reminder_create' %}" class="btn btn-primary">
+        <i class="fas fa-plus me-2"></i>Add Reminder
+    </a>
+</div>
+
+{% if reminders %}
+<div class="row g-3">
+    {% for reminder in reminders %}
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body p-4 d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center gap-3">
+                    <div style="width:50px;height:50px;border-radius:14px;background:{% if reminder.is_active %}linear-gradient(135deg,#6C63FF,#FF6584){% else %}#f3f4f6{% endif %};display:flex;align-items:center;justify-content:center;">
+                        <i class="fas fa-bell {% if reminder.is_active %}text-white{% else %}text-muted{% endif %}"></i>
+                    </div>
+                    <div>
+                        <div class="fw-semibold">{{ reminder.reminder_time|time:"g:i A" }}</div>
+                        <div class="text-muted small">{{ reminder.message }}</div>
+                        <span class="badge {% if reminder.is_active %}bg-success{% else %}bg-secondary{% endif %} mt-1">
+                            {% if reminder.is_active %}Active{% else %}Inactive{% endif %}
+                        </span>
+                    </div>
+                </div>
+                <form method="post" action="{% url 'reminder_delete' reminder.pk %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-outline-danger border-0" onclick="return confirm('Delete this reminder?')">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="card text-center py-5">
+    <div class="card-body">
+        <i class="fas fa-bell fa-4x mb-3" style="color:#e0e0e0"></i>
+        <h5 class="text-muted">No reminders set</h5>
+        <p class="text-muted small mb-4">Add a daily reminder to build your journaling habit.</p>
+        <a href="{% url 'reminder_create' %}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>Add Reminder
+        </a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

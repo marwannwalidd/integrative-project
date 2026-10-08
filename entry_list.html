@@ -1,0 +1,77 @@
+{% extends 'daily_journal/base.html' %}
+{% block title %}Journal Entries{% endblock %}
+{% block page_title %}Journal Entries{% endblock %}
+
+{% block content %}
+<!-- Search & Filter -->
+<div class="card mb-4">
+    <div class="card-body p-3">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-md-5">
+                <label class="form-label small fw-semibold">Search</label>
+                {{ form.query }}
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-semibold">From</label>
+                {{ form.date_from }}
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-semibold">To</label>
+                {{ form.date_to }}
+            </div>
+            <div class="col-md-1">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Header -->
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h5 class="mb-0 fw-semibold">{{ entries.count }} Entr{{ entries.count|pluralize:"y,ies" }}</h5>
+    <a href="{% url 'entry_create' %}" class="btn btn-primary">
+        <i class="fas fa-plus me-2"></i>New Entry
+    </a>
+</div>
+
+<!-- Entries -->
+{% if entries %}
+    {% for entry in entries %}
+    <div class="entry-card d-flex justify-content-between align-items-start" style="cursor:default;">
+        <div style="flex:1">
+            <div class="d-flex align-items-center gap-2 mb-1">
+                <a href="{% url 'entry_detail' entry.pk %}" class="fw-semibold text-decoration-none text-dark">{{ entry.title }}</a>
+                {% with mood=entry.moods.first %}
+                    {% if mood %}
+                    <span class="mood-badge mood-{{ mood.mood_type }}">{{ mood.get_mood_type_display }}</span>
+                    {% endif %}
+                {% endwith %}
+            </div>
+            <p class="text-muted small mb-1">{{ entry.content|truncatechars:140 }}</p>
+            <div class="d-flex gap-3">
+                <small class="text-muted"><i class="fas fa-calendar me-1"></i>{{ entry.created_at|date:"M j, Y" }}</small>
+                <small class="text-muted"><i class="fas fa-file-word me-1"></i>{{ entry.word_count }} words</small>
+            </div>
+        </div>
+        <div class="d-flex gap-2 ms-3">
+            <a href="{% url 'entry_detail' entry.pk %}" class="btn btn-sm btn-outline-primary"><i class="fas fa-eye"></i></a>
+            <a href="{% url 'entry_edit' entry.pk %}" class="btn btn-sm btn-outline-secondary"><i class="fas fa-edit"></i></a>
+            <a href="{% url 'entry_delete' entry.pk %}" class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></a>
+        </div>
+    </div>
+    {% endfor %}
+{% else %}
+    <div class="card text-center py-5">
+        <div class="card-body">
+            <i class="fas fa-book-open fa-4x mb-3" style="color:#e0e0e0"></i>
+            <h5 class="text-muted">No entries found</h5>
+            <p class="text-muted small mb-4">{% if request.GET %}Try adjusting your search filters.{% else %}Start writing your first journal entry!{% endif %}</p>
+            <a href="{% url 'entry_create' %}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Write First Entry
+            </a>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}
